@@ -21,7 +21,7 @@
 #include <glib/gi18n-lib.h>
 
 #define TUTORIAL \
-" id=1  color-overlay value=#ffffff gimp:layer-mode layer-mode=behind opacity=1.00 aux=[ color value=#000000  ]  id=2 gimp:layer-mode layer-mode=color-erase opacity=1.00 aux=[ color value=#ffffff  ] \n"\
+" id=1  color-overlay value=#ffffff gimp:layer-mode layer-mode=behind opacity=1.00 aux=[ color value=#000000  ]  id=2 gimp:layer-mode layer-mode=color-erase opacity=1.00 aux=[ color value=#ffffff ] crop \n"\
 
 
 
