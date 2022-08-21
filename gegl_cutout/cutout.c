@@ -32,28 +32,28 @@ property_color (color2, _("Color 2"), "#f587ff")
     description (_("The color to paint over the input"))
 
 
-property_double (x, _("X"), -2.5)
+property_double (x, _("Shadow X"), -2.5)
   description   (_("Horizontal shadow offset"))
   ui_range      (-16.0, 16.0)
   ui_steps      (1, 10)
   ui_meta       ("unit", "pixel-distance")
   ui_meta       ("axis", "x")
 
-property_double (y, _("Y"), 9.12)
+property_double (y, _("Shadow  Y"), 9.12)
   description   (_("Vertical shadow offset"))
   ui_range      (-16.0, 16.0)
   ui_steps      (1, 10)
   ui_meta       ("unit", "pixel-distance")
   ui_meta       ("axis", "y")
 
-property_double (radius, _("Blur radius"), 4.1)
+property_double (radius, _("Shadow Blur radius"), 4.1)
   value_range   (0.0, G_MAXDOUBLE)
   ui_range      (0.0, 20.0)
   ui_steps      (1, 5)
   ui_gamma      (1.5)
   ui_meta       ("unit", "pixel-distance")
 
-property_double (growradius, _("Grow radius"), -19.0)
+property_double (growradius, _("Shadow Grow radius"), -19.0)
   value_range   (-100.0, 100.0)
   ui_range      (-50.0, 50.0)
   ui_digits     (0)
@@ -62,17 +62,35 @@ property_double (growradius, _("Grow radius"), -19.0)
   ui_meta       ("unit", "pixel-distance")
   description (_("The distance to expand the shadow before blurring; a negative value will contract the shadow instead"))
 
-property_color  (colorshadow, _("Color"), "black")
+property_color  (colorshadow, _("Shadow Color"), "black")
     /* TRANSLATORS: the string 'black' should not be translated */
   description   (_("The shadow's color (defaults to 'black')"))
 
 /* It does make sense to sometimes have opacities > 1 (see GEGL logo
  * for example)
  */
-property_double (opacity, _("Opacity"), 0.5)
+property_double (opacity, _("Shadow Opacity"), 0.5)
   value_range   (0.0, 2.0)
   ui_steps      (0.01, 0.10)
 
+
+property_file_path(upload, _("Top image Overlay"), "")
+    description (_("Source image file path (png, jpg, raw, svg, bmp, tif, ...)"))
+
+property_file_path(upload2, _("Bottom image overlay"), "")
+    description (_("Source image file path (png, jpg, raw, svg, bmp, tif, ...)"))
+
+property_double (black_level, _("Black level on bottom image layer"), 0.0)
+    description (_("Adjust the black level"))
+    value_range (-0.1, 0.1)
+
+property_double (exposure, _("Exposure on bottom image layer"), 0.0)
+    description (_("Relative brightness change in stops"))
+    ui_range    (-10.0, 10.0)
+
+property_double (hue, _("Color Rotation on bottom image layer"),  0.0)
+   description  (_("Hue adjustment"))
+   value_range  (-180.0, 180.0)
 
 
 
@@ -88,7 +106,7 @@ property_double (opacity, _("Opacity"), 0.5)
 static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
-  GeglNode *input, *output, *erase, *layer, *color, *crop, *ds, *behind, *it, *layer2, *color2, *nop, *nop2;
+  GeglNode *input, *output, *erase, *layer, *ontop, *color, *crop, *ds, *behind, *exposure, *hue, *behind2, *it, *layer2, *color2, *nop, *nop2;
 
 
   input    = gegl_node_get_input_proxy (gegl, "input");
@@ -105,6 +123,19 @@ static void attach (GeglOperation *operation)
   behind    = gegl_node_new_child (gegl,
                                   "operation", "gegl:dst-atop",
                                   NULL);
+
+  behind2    = gegl_node_new_child (gegl,
+                                  "operation", "gegl:dst-atop",
+                                  NULL);
+
+  ontop   = gegl_node_new_child (gegl,
+                                  "operation", "gegl:src-atop",
+                                  NULL);
+
+   hue = gegl_node_new_child (gegl,
+                                  "operation", "gegl:hue-chroma",
+                                  NULL);
+
 
 
   erase   = gegl_node_new_child (gegl,
@@ -141,16 +172,24 @@ static void attach (GeglOperation *operation)
                                   "operation", "gegl:invert-transparency",
                                   NULL);
 
+  exposure  = gegl_node_new_child (gegl,
+                                  "operation", "gegl:exposure",
+                                  NULL);
 
 
 
 
 
 
- gegl_node_link_many (input, it, nop, color, layer, crop, ds, behind, output, NULL);
 
- gegl_node_link_many (behind, color2, layer2, NULL);
+
+ gegl_node_link_many (input, it, color, crop, ontop, ds, behind2, behind, output, NULL);
+ gegl_node_link_many (layer, NULL);
+ gegl_node_link_many (layer2, exposure, hue, NULL);
+ gegl_node_link_many (behind, color2, NULL);
+gegl_node_connect_from (ontop, "aux", layer, "output"); 
 gegl_node_connect_from (behind, "aux", color2, "output"); 
+gegl_node_connect_from (behind2, "aux", hue, "output"); 
 
 
 
@@ -164,6 +203,9 @@ gegl_node_connect_from (behind, "aux", color2, "output");
   gegl_operation_meta_redirect (operation, "growradius", ds, "grow-radius");
   gegl_operation_meta_redirect (operation, "colorshadow", ds, "color");
   gegl_operation_meta_redirect (operation, "color2", color2, "value");
+  gegl_operation_meta_redirect (operation, "black_level", exposure, "black-level");
+  gegl_operation_meta_redirect (operation, "exposure", exposure, "exposure");
+  gegl_operation_meta_redirect (operation, "hue", hue, "hue");
 
 
 
