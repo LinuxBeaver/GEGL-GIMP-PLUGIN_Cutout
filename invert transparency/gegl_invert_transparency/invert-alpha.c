@@ -22,6 +22,17 @@
 
 #ifdef GEGL_PROPERTIES
 
+#define TUTORIAL \
+" id=1  color-overlay value=#ffffff gimp:layer-mode layer-mode=behind opacity=1.00 aux=[ color value=#000000  ]  id=2 gimp:layer-mode layer-mode=color-erase opacity=1.00 aux=[ color value=#ffffff ] crop "\
+
+
+
+
+
+property_string (string, _("Invert Transparency"), TUTORIAL)
+    ui_meta     ("role", "output-extent")
+
+
 
 property_color (value, _("Color"), "#000000")
     description (_("The color to paint over the inverted transparency"))
@@ -48,7 +59,7 @@ static void attach (GeglOperation *operation)
   output   = gegl_node_get_output_proxy (gegl, "output");
 
   it    = gegl_node_new_child (gegl,
-                                  "operation", "gegl:it",
+                                  "operation", "gegl:gegl",
                                   NULL);
 
   col    = gegl_node_new_child (gegl,
@@ -56,6 +67,7 @@ static void attach (GeglOperation *operation)
                                   NULL);
 
       gegl_operation_meta_redirect (operation, "value", col, "value");
+      gegl_operation_meta_redirect (operation, "string", it, "string");
 
 
       gegl_node_link_many (input, it, col, output, NULL);
