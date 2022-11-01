@@ -71,7 +71,7 @@ property_color  (colorshadow, _("Shadow Color"), "black")
  */
 property_double (opacity, _("Shadow Opacity"), 0.5)
   value_range   (0.0, 2.0)
-  ui_steps      (0.01, 0.10)
+  ui_steps      (0.1, 0.10)
 
 
 property_file_path(upload, _("Top image Overlay"), "")
@@ -136,13 +136,6 @@ static void attach (GeglOperation *operation)
                                   "operation", "gegl:hue-chroma",
                                   NULL);
 
-
-
-  erase   = gegl_node_new_child (gegl,
-                                  "operation", "gegl:xor",
-                                  NULL);
-
-
   crop  = gegl_node_new_child (gegl,
                                   "operation", "gegl:crop",
                                   NULL);
@@ -184,7 +177,6 @@ static void attach (GeglOperation *operation)
 
 
  gegl_node_link_many (input, it, color, crop, ontop, ds, behind2, behind, output, NULL);
- gegl_node_link_many (layer, NULL);
  gegl_node_link_many (layer2, exposure, hue, NULL);
  gegl_node_link_many (behind, color2, NULL);
 gegl_node_connect_from (ontop, "aux", layer, "output"); 
