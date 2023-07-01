@@ -56,3 +56,6 @@ Then build the same way you would on Linux:
 
 ![image](https://github.com/LinuxBeaver/GEGL-CutOut-Effect/assets/78667207/4995f08e-65d7-48bc-b3fa-ffc261997698)
 
+## Bonus Filter Preview
+
+![image](https://github.com/LinuxBeaver/GEGL-CutOut-Effect/assets/78667207/3cfb69a3-a960-4626-82b6-2e5389069114)
