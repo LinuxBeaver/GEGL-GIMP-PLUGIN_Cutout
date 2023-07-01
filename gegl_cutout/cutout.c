@@ -17,6 +17,13 @@
  * 2022 Beaver GEGL cut out
  */
 
+/*
+Rough recreation of GEGL Graph. Requires Invert Transparency
+
+invert-transparency value=#00ff22 id=image1 #src-atop aux=[ ref=image1  layer src= ]
+id=2 dst-over aux=[ ref=2 color value=#ff000b crop #layer src  ]
+ */
+
 #include "config.h"
 #include <glib/gi18n-lib.h>
 
@@ -106,7 +113,7 @@ property_double (hue, _("Color Rotation on bottom image layer"),  0.0)
 static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
-  GeglNode *input, *output, *erase, *layer, *ontop, *color, *crop, *ds, *behind, *exposure, *hue, *behind2, *it, *layer2, *color2, *nop, *nop2;
+  GeglNode *input, *output, *layer, *ontop, *color, *crop, *ds, *behind, *exposure, *hue, *behind2, *it, *layer2, *color2;
 
 
   input    = gegl_node_get_input_proxy (gegl, "input");
@@ -153,14 +160,6 @@ static void attach (GeglOperation *operation)
                                   "operation", "gegl:layer",
                                   NULL);
 
-  nop  = gegl_node_new_child (gegl,
-                                  "operation", "gegl:nop",
-                                  NULL);
-
-  nop2  = gegl_node_new_child (gegl,
-                                  "operation", "gegl:nop",
-                                  NULL);
-
   it  = gegl_node_new_child (gegl,
                                   "operation", "gegl:invert-transparency",
                                   NULL);
@@ -169,16 +168,9 @@ static void attach (GeglOperation *operation)
                                   "operation", "gegl:exposure",
                                   NULL);
 
-
-
-
-
-
-
-
- gegl_node_link_many (input, it, color, crop, ontop, ds, behind2, behind, output, NULL);
- gegl_node_link_many (layer2, exposure, hue, NULL);
- gegl_node_link_many (behind, color2, NULL);
+gegl_node_link_many (input, it, color, crop, ontop, ds, behind2, behind, output, NULL);
+gegl_node_link_many (layer2, exposure, hue, NULL);
+gegl_node_link_many (behind, color2, NULL);
 gegl_node_connect_from (ontop, "aux", layer, "output"); 
 gegl_node_connect_from (behind, "aux", color2, "output"); 
 gegl_node_connect_from (behind2, "aux", hue, "output"); 
@@ -198,9 +190,6 @@ gegl_node_connect_from (behind2, "aux", hue, "output");
   gegl_operation_meta_redirect (operation, "black_level", exposure, "black-level");
   gegl_operation_meta_redirect (operation, "exposure", exposure, "exposure");
   gegl_operation_meta_redirect (operation, "hue", hue, "hue");
-
-
-
 
 }
 
