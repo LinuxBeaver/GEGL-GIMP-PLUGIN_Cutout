@@ -170,7 +170,6 @@ static void attach (GeglOperation *operation)
 
 gegl_node_link_many (input, it, color, crop, ontop, ds, behind2, behind, output, NULL);
 gegl_node_link_many (layer2, exposure, hue, NULL);
-gegl_node_link_many (behind, color2, NULL);
 gegl_node_connect_from (ontop, "aux", layer, "output"); 
 gegl_node_connect_from (behind, "aux", color2, "output"); 
 gegl_node_connect_from (behind2, "aux", hue, "output"); 
