@@ -89,7 +89,7 @@ property_file_path(upload2, _("Bottom image overlay"), "")
 
 property_double (black_level, _("Black level on bottom image layer"), 0.0)
     description (_("Adjust the black level"))
-    value_range (-0.1, 0.1)
+    ui_range (-0.1, 0.1)
 
 property_double (exposure, _("Exposure on bottom image layer"), 0.0)
     description (_("Relative brightness change in stops"))
