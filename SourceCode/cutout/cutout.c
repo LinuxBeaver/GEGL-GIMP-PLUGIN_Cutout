@@ -53,16 +53,16 @@ property_double (y, _("Shadow  Y"), 9.12)
   ui_meta       ("unit", "pixel-distance")
   ui_meta       ("axis", "y")
 
-property_double (radius, _("Shadow Blur radius"), 4.1)
+property_double (radius, _("Shadow Blur radius"), 5.0)
   value_range   (0.0, G_MAXDOUBLE)
   ui_range      (0.0, 20.0)
   ui_steps      (1, 5)
   ui_gamma      (1.5)
   ui_meta       ("unit", "pixel-distance")
 
-property_double (growradius, _("Shadow Grow radius"), -19.0)
-  value_range   (-100.0, 100.0)
-  ui_range      (-50.0, 50.0)
+property_double (growradius, _("Shadow Grow radius"), 9.0)
+  value_range   (0.0, 100.0)
+  ui_range      (0.0, 50.0)
   ui_digits     (0)
   ui_steps      (1, 5)
   ui_gamma      (1.5)
@@ -113,7 +113,7 @@ property_double (hue, _("Color Rotation on bottom image layer"),  0.0)
 static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
-  GeglNode *input, *output, *layer, *ontop, *color, *crop, *ds, *behind, *exposure, *hue, *behind2, *it, *layer2, *color2;
+  GeglNode *input, *output, *layer, *ontop, *nop, *color, *crop, *ds, *behind, *exposure, *hue, *behind2, *it, *layer2, *color2;
 
 
   input    = gegl_node_get_input_proxy (gegl, "input");
@@ -143,6 +143,10 @@ static void attach (GeglOperation *operation)
                                   "operation", "gegl:hue-chroma",
                                   NULL);
 
+  nop  = gegl_node_new_child (gegl,
+                                  "operation", "gegl:nop",
+                                  NULL);
+
   crop  = gegl_node_new_child (gegl,
                                   "operation", "gegl:crop",
                                   NULL);
@@ -168,12 +172,17 @@ static void attach (GeglOperation *operation)
                                   "operation", "gegl:exposure",
                                   NULL);
 
-gegl_node_link_many (input, it, color, crop, ontop, ds, behind2, behind, output, NULL);
+gegl_node_link_many (input, it, color, nop, crop, ontop, ds, behind2, behind, output, NULL);
 gegl_node_link_many (layer2, exposure, hue, NULL);
 gegl_node_connect (ontop, "aux", layer, "output"); 
 gegl_node_connect (behind, "aux", color2, "output"); 
 gegl_node_connect (behind2, "aux", hue, "output"); 
+gegl_node_connect (crop, "aux", nop, "output"); 
 
+/*
+invert-transparency value=#00ff22 id=image1 #src-atop aux=[ ref=image1  layer src= ]
+id=2 dst-over aux=[ ref=2 color value=#ff000b crop #layer src  ]
+*/
 
 
   gegl_operation_meta_redirect (operation, "color", color, "value");
