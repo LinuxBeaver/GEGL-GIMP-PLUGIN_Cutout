@@ -77,7 +77,7 @@ property_color  (colorshadow, _("Shadow Color"), "black")
  * for example)
  */
 property_double (opacity, _("Shadow Opacity"), 0.5)
-  value_range   (0.0, 2.0)
+  value_range   (0.0, 1.0)
   ui_steps      (0.1, 0.10)
 
 
