@@ -70,8 +70,8 @@ property_double (growradius, _("Shadow Grow radius"), 9.0)
   description (_("The distance to expand the shadow before blurring; a negative value will contract the shadow instead"))
 
 property_color  (colorshadow, _("Shadow Color"), "black")
-    /* TRANSLATORS: the string 'black' should not be translated */
-  description   (_("The shadow's color (defaults to 'black')"))
+    /* TRANSLATORS: the string ꞌblackꞌ should not be translated */
+  description   (_("The shadowꞌs color (defaults to ꞌblackꞌ)"))
 
 /* It does make sense to sometimes have opacities > 1 (see GEGL logo
  * for example)
